@@ -1,0 +1,44 @@
+[gd_scene load_steps=9 format=3 uid="uid://dxse1x6hwdct6"]
+
+[ext_resource type="Texture2D" uid="uid://cql8302o6plc3" path="res://addons/kenney_prototype_textures/dark/texture_01.png" id="1_4w30p"]
+[ext_resource type="PackedScene" uid="uid://bk6xptdepnvov" path="res://prefabs/PlayerCharacter.tscn" id="2_ywfnq"]
+[ext_resource type="PackedScene" uid="uid://c8h42ihldexvq" path="res://prefabs/camera_controller.tscn" id="3_xsjk4"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_xsjk4"]
+sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+
+[sub_resource type="Sky" id="Sky_xc6i3"]
+sky_material = SubResource("ProceduralSkyMaterial_xsjk4")
+
+[sub_resource type="Environment" id="Environment_gtooi"]
+background_mode = 2
+sky = SubResource("Sky_xc6i3")
+tonemap_mode = 2
+glow_enabled = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hpeaq"]
+albedo_texture = ExtResource("1_4w30p")
+uv1_triplanar = true
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ywfnq"]
+material = SubResource("StandardMaterial3D_hpeaq")
+size = Vector2(15, 15)
+
+[node name="TestClientSide" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_gtooi")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, 0.75, -0.433013, 0, 0, 0)
+shadow_enabled = true
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("PlaneMesh_ywfnq")
+
+[node name="PlayerCharacter" parent="." instance=ExtResource("2_ywfnq")]
+is_client_side = true
+
+[node name="CameraController" parent="." node_paths=PackedStringArray("target") instance=ExtResource("3_xsjk4")]
+target = NodePath("../PlayerCharacter")
