@@ -4,6 +4,7 @@ class_name PlayerLocomotion
 @export var animator: PlayerAnimator
 @export var turn_speed: float = 10.0
 var movement_direction: Vector2 = Vector2.ZERO
+var look_angle: float = 0.0
 var camera_angle: float = 0.0
 var camera_held: bool = false
 
@@ -18,7 +19,7 @@ func _ready() -> void:
 		return
 
 
-func do_process(delta: float) -> Vector3:
+func do_process(delta: float, in_control: bool) -> Vector3:
 	if !_character:
 		return Vector3.ZERO
 
@@ -29,9 +30,9 @@ func do_process(delta: float) -> Vector3:
 	
 	var velocity: Vector3 = Vector3.ZERO
 	# Update Animator
-	if camera_held:
-		animator.locomotion_direction = Vector2(movement_direction.x, -movement_direction.y)
-	elif movement_direction != Vector2.ZERO:
+	# if camera_held:
+	# 	animator.locomotion_direction = Vector2(movement_direction.x, -movement_direction.y)
+	if movement_direction != Vector2.ZERO:
 		var strength: float = movement_direction.length()
 		animator.locomotion_direction = Vector2(0, strength)
 	else:
@@ -43,30 +44,29 @@ func do_process(delta: float) -> Vector3:
 	var root_velocity: Vector3 = current_rotation * root_motion / delta
 	var root_rotation: Quaternion = animator.animation_tree.get_root_motion_rotation()
 	_character.quaternion = _character.quaternion * root_rotation / delta
-
-	var direction: Vector3 = Vector3(movement_direction.x, 0, movement_direction.y).rotated(Vector3.UP, camera_angle).normalized()
-
 	velocity = Vector3(root_velocity.x, 0, root_velocity.z)
-	
-	if direction != Vector3.ZERO:
-		_previous_direction = Vector2(direction.x, direction.z)
 
-	var look_angle: float
-	if camera_held:
-		look_angle = lerp_angle(_character.rotation.y, camera_angle + 90 + 45, turn_speed * delta)
-	else:
-		look_angle = lerp_angle(_character.rotation.y, atan2(_previous_direction.x, _previous_direction.y), turn_speed * delta)
-	
-	_character.rotation.y = look_angle
+	if in_control:
+		var direction: Vector3 = Vector3(movement_direction.x, 0, movement_direction.y).rotated(Vector3.UP, camera_angle).normalized()
 
-	DebugDraw2D.set_text("camera_angle", camera_angle)
-	DebugDraw2D.set_text("camera_held", camera_held)
+		if direction != Vector3.ZERO:
+			_previous_direction = Vector2(direction.x, direction.z)
+			# print("direction", direction)
 
-	# DebugDraw3D.draw_ray(transform.origin, root_motion, 1, Color.RED)
-	DebugDraw3D.draw_ray(_character.transform.origin, direction, 10, Color.BLUE)
+		var _look_angle: float = lerp_angle(_character.rotation.y, atan2(_previous_direction.x, _previous_direction.y), turn_speed * delta)
 
-	DebugDraw2D.set_text("movement_input", movement_direction)
+		_character.rotation.y = _look_angle
 
-	DebugDraw2D.set_text("position", _character.transform.origin)
+		DebugDraw2D.set_text("look_angle", rad_to_deg(look_angle))
+		DebugDraw2D.set_text("camera_angle", rad_to_deg(camera_angle))
+		DebugDraw2D.set_text("camera_held", camera_held)
+		DebugDraw2D.set_text("_previous_direction", _previous_direction)
+
+		# DebugDraw3D.draw_ray(transform.origin, root_motion, 1, Color.RED)
+		DebugDraw3D.draw_ray(_character.transform.origin, direction, 10, Color.BLUE)
+
+		DebugDraw2D.set_text("movement_input", movement_direction)
+
+		DebugDraw2D.set_text("position", _character.transform.origin)
 
 	return velocity

@@ -120,3 +120,6 @@ func spawned_player(nodePath: NodePath) -> void:
 	var client_side_camera_instance: CameraController = client_side_camera.instantiate()
 	client_side_camera_instance.target = get_node(nodePath)
 	self.add_child(client_side_camera_instance)
+
+	var player_character: PlayerCharacter = get_node(nodePath)
+	player_character.camera = client_side_camera_instance

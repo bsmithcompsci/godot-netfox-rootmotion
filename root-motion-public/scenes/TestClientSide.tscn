@@ -37,8 +37,9 @@ shadow_enabled = true
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 mesh = SubResource("PlaneMesh_ywfnq")
 
-[node name="PlayerCharacter" parent="." instance=ExtResource("2_ywfnq")]
+[node name="PlayerCharacter" parent="." node_paths=PackedStringArray("camera") instance=ExtResource("2_ywfnq")]
 is_client_side = true
+camera = NodePath("../CameraController")
 
 [node name="CameraController" parent="." node_paths=PackedStringArray("target") instance=ExtResource("3_xsjk4")]
 target = NodePath("../PlayerCharacter")
